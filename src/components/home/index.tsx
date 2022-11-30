@@ -1,8 +1,9 @@
 import { convertNumber, getFullDateAndTimeToDay } from "helpers/untils";
 import React, { KeyboardEvent, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
-let socket: Socket = io("https://realtimeserver.vercel.app/", {
-  transports: ["websocket"],
+import { isBuffer } from "util";
+let socket: Socket = io("https://realtimeserver.vercel.app", {
+  transports: ["websocket", "polling", "flashsocket"],
 });
 interface CommentDetail {
   message: string;
@@ -37,11 +38,13 @@ const Home = () => {
         time: new Date(),
         message: comment,
       };
-      const newList = [...list];
-      newList.push(commentDetail);
-      setList(newList);
-      socket.emit("comment", commentDetail);
-      setComment("");
+      if (commentDetail.message.length > 0) {
+        const newList = [...list];
+        newList.push(commentDetail);
+        setList(newList);
+        socket.emit("comment", commentDetail);
+        setComment("");
+      }
     }
   };
   const handleLike = () => {
