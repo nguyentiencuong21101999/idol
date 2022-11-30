@@ -1,21 +1,29 @@
 import { convertNumber, getFullDateAndTimeToDay } from "helpers/untils";
-import React, { KeyboardEvent, useState } from "react";
+import React, { KeyboardEvent, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
+let socket: Socket = io("https://realtimeserver.vercel.app/");
 interface CommentDetail {
   message: string;
   time: Date;
 }
 
 const Home = () => {
-  let socket: Socket;
-  socket = io("https://realtimeserver.vercel.app");
-  const commentList: CommentDetail[] = [
-    { message: "abc", time: new Date() },
-    { message: "abc", time: new Date() },
-  ];
-  const [list, setList] = useState<CommentDetail[]>(commentList);
+  const [list, setList] = useState<CommentDetail[]>([]);
   const [comment, setComment] = useState<string>("");
   const [totalLike, setTotalLike] = useState<number>(0);
+
+  useEffect(() => {
+    socket.on("return-comment-list", (data: CommentDetail[]) => {
+      setList(data);
+    });
+
+    socket.emit("get-comment-list");
+    socket.emit("get-total-like");
+    socket.on("return-total-like", (data: number) => {
+      setTotalLike(data);
+    });
+  }, []);
+
   const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setComment(value);
@@ -30,13 +38,15 @@ const Home = () => {
       const newList = [...list];
       newList.push(commentDetail);
       setList(newList);
+      socket.emit("comment", commentDetail);
+      setComment("");
     }
   };
   const handleLike = () => {
     const newTotalLike = totalLike + 1;
     setTotalLike(newTotalLike);
+    socket.emit("like", newTotalLike);
   };
-  console.log(socket);
   return (
     <div className=" bg-slate-200 top-0">
       <div className="pt-10 flex flex-col  xl:flex-row  justify-center max-w-screen-2x min-h-screen w-full ">
@@ -72,20 +82,22 @@ const Home = () => {
         <div className="pl-2 pr-2 grid xl:basis-2/4 lg:basis-2/3 xl:justify-items-start justify-center ">
           <div className="h-[648px]  border-solid border-red-500  border-2 xl:basis-2/4 md:w-[720px] w-full min-w-[360px] rounded-lg shadow-2xl  bg-slate-50 relative">
             <div className=" h-[580px] overflow-auto">
-              {list.map((e) => {
-                return (
-                  <div className="flex flex-row p-2 w-full ">
-                    <span className="basis-auto leading-7">
-                      <span className="border-b-2 w-full rounded-lg border-solid border-red-500 p-1">
-                        {getFullDateAndTimeToDay(e.time)}
+              {list.length > 0 &&
+                list.map((e, i) => {
+                  return (
+                    <div key={i} className="flex flex-row p-2 w-full ">
+                      <span className="basis-auto leading-7">
+                        <span className="border-b-2 w-full rounded-lg border-solid border-red-500 p-1">
+                          {getFullDateAndTimeToDay(new Date(e.time))}
+                        </span>
+                        : {e.message}
                       </span>
-                      : {e.message}
-                    </span>
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })}
               <div className="flex flex-col p-2 w-full absolute bottom-1 ">
                 <input
+                  value={comment}
                   type="text"
                   name="comment"
                   className="border-solid border-2 rounded-lg h-10 p-2 focus:outline-none focus:border-green-500"
