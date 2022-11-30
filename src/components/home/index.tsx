@@ -1,7 +1,9 @@
 import { convertNumber, getFullDateAndTimeToDay } from "helpers/untils";
 import React, { KeyboardEvent, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
-let socket: Socket = io("https://realtimeserver.vercel.app/");
+let socket: Socket = io("https://realtimeserver.vercel.app/", {
+  transports: ["websocket"],
+});
 interface CommentDetail {
   message: string;
   time: Date;
