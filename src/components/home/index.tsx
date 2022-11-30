@@ -1,11 +1,14 @@
 import { convertNumber, getFullDateAndTimeToDay } from "helpers/untils";
 import React, { KeyboardEvent, useState } from "react";
+import io, { Socket } from "socket.io-client";
 interface CommentDetail {
   message: string;
   time: Date;
 }
 
 const Home = () => {
+  let socket: Socket;
+  socket = io("https://realtimeserver.vercel.app");
   const commentList: CommentDetail[] = [
     { message: "abc", time: new Date() },
     { message: "abc", time: new Date() },
@@ -33,6 +36,7 @@ const Home = () => {
     const newTotalLike = totalLike + 1;
     setTotalLike(newTotalLike);
   };
+  console.log(socket);
   return (
     <div className=" bg-slate-200 top-0">
       <div className="pt-10 flex flex-col  xl:flex-row  justify-center max-w-screen-2x min-h-screen w-full ">
