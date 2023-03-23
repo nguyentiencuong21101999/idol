@@ -1,123 +1,139 @@
+import { type } from "@testing-library/user-event/dist/type";
 import { convertNumber, getFullDateAndTimeToDay } from "helpers/untils";
 import React, { KeyboardEvent, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
-import { isBuffer } from "util";
-let socket: Socket = io("https://realtimeserver.vercel.app", {
+let socket: Socket = io("http://localhost:4000/", {
   transports: ["websocket", "polling", "flashsocket"],
+  withCredentials: true,
 });
-interface CommentDetail {
-  message: string;
-  time: Date;
+
+export interface KeyValueResDTO {
+  key: number;
+  value: number;
+}
+
+interface EventCompsToCheckDTO {
+  num: number;
+
+  win: string;
+
+  team: string;
+
+  place: string;
+
+  compsId: number;
+
+  eventId: number;
+
+  eventCompsId: number;
+}
+
+interface EventToCheckDTO {
+  eventId: KeyValueResDTO[];
+
+  gWEventId: number;
+
+  feedId: number;
+
+  outcomeAt: Date;
+
+  suspendAt: Date;
+
+  raceState: string;
+
+  meeting: string;
+
+  raceNum: number;
+
+  mapEventCode: string;
+
+  sport: string;
+
+  eventType: number;
+
+  description: string;
+
+  comps: EventCompsToCheckDTO[];
 }
 
 const Home = () => {
-  const [list, setList] = useState<CommentDetail[]>([]);
-  const [comment, setComment] = useState<string>("");
-  const [totalLike, setTotalLike] = useState<number>(0);
+  const [user, setUser] = useState<string>("");
+  const [event, setEvent] = useState<EventToCheckDTO>();
 
   useEffect(() => {
-    socket.on("return-comment-list", (data: CommentDetail[]) => {
-      setList(data);
-    });
-
-    socket.emit("get-comment-list");
-    socket.emit("get-total-like");
-    socket.on("return-total-like", (data: number) => {
-      setTotalLike(data);
-    });
+    // socket.on("events/get", (data: EventToCheckDTO) => {
+    //   console.log(data);
+    //   setEvent(data);
+    // });
+    // socket.on("events/update", (eventId: number) => {
+    //   if (
+    //     event?.eventId[0].value == eventId ||
+    //     event?.eventId[1].value == eventId
+    //   ) {
+    //     console.log("-------", eventId);
+    //     socket.emit("events/get", [14605698]);
+    //   }
+    // if (event?.eventId. === data.eventId) {
+    //   setEvent(data);
+    // }
+    // });
+    // socket.on("all-user", (data: string) => {
+    //   setUser(data);
+    // });
+  });
+  useEffect(() => {
+    socket.emit("events/get", [14605698]);
   }, []);
-
-  const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setComment(value);
-  };
-
-  const handleCommentSubmit = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      const commentDetail: CommentDetail = {
-        time: new Date(),
-        message: comment,
-      };
-      if (commentDetail.message.length > 0) {
-        const newList = [...list];
-        newList.push(commentDetail);
-        setList(newList);
-        socket.emit("comment", commentDetail);
-        setComment("");
-      }
-    }
-  };
-  const handleLike = () => {
-    const newTotalLike = totalLike + 1;
-    setTotalLike(newTotalLike);
-    socket.emit("like", newTotalLike);
+  const handlOnclick = () => {
+    window.open(
+      "https://dev.wolfden.bet/verify-success?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMzExNiIsInV1aWQiOiJlYjE4ZmMyNC1mZDMxLTQyMDktYjk1MC0yNGVjYjI0MjcyNjMiLCJyb2xlSWQiOiIzIiwiYWN0aXZlIjoiMSIsImlhdCI6MTY3OTMyNzA3OH0.bMH5eTrXcaZSLKgGCzY4cDjmdh5LysaPUOQLfyQxh4U&email=mexer38004%40huvacliq.com"
+    );
   };
   return (
-    <div className=" bg-slate-200 top-0">
-      <div className="pt-10 flex flex-col  xl:flex-row  justify-center max-w-screen-2x min-h-screen w-full ">
-        <div className="pr-2 grid basis-auto  xl:justify-items-end justify-center mb-2">
-          <div className="w-[360px] h-[684px] relative">
-            <div className="absolute z-10 top-1/3 right-1 ">
-              <i
-                className="fa fa-heart text-5xl text-red-600 cursor-pointer "
-                aria-hidden="true"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleLike();
-                }}
-              ></i>
-              <p className="text-white text-center">
-                {convertNumber(totalLike)}
-              </p>
+    <>
+      <div className="flex justify-center items-center"></div>
+      {/* <div>Event: {JSON.stringify(event?.comps)}</div> */}
+      {event?.comps?.map(
+        (e, i) => (
+          <>
+            <div key={i * e.num}>
+              <span style={{ color: "red" }}>Num</span> :{JSON.stringify(e.num)}
             </div>
-            <video
-              className="border-solid border-red-500  border-2 rounded-lg  focus:border-none"
-              width="360"
-              height="648"
-              controls
-              // autoPlay
-            >
-              <source
-                src="https://res.cloudinary.com/cuong/video/upload/v1669707525/image/317685561_9186563411369261_6947683684347151694_n_vjemz0.mp4"
-                type="video/mp4"
-              ></source>
-            </video>
-          </div>
-        </div>
-        <div className="pl-2 pr-2 grid xl:basis-2/4 lg:basis-2/3 xl:justify-items-start justify-center ">
-          <div className="h-[648px]  border-solid border-red-500  border-2 xl:basis-2/4 md:w-[720px] w-full min-w-[360px] rounded-lg shadow-2xl  bg-slate-50 relative">
-            <div className=" h-[580px] overflow-auto">
-              {list.length > 0 &&
-                list.map((e, i) => {
-                  return (
-                    <div key={i} className="flex flex-row p-2 w-full ">
-                      <span className="basis-auto leading-7">
-                        <span className="border-b-2 w-full rounded-lg border-solid border-red-500 p-1">
-                          {getFullDateAndTimeToDay(new Date(e.time))}
-                        </span>
-                        : {e.message}
-                      </span>
-                    </div>
-                  );
-                })}
-              <div className="flex flex-col p-2 w-full absolute bottom-1 ">
-                <input
-                  value={comment}
-                  type="text"
-                  name="comment"
-                  className="border-solid border-2 rounded-lg h-10 p-2 focus:outline-none focus:border-green-500"
-                  onChange={(e) => {
-                    e.preventDefault();
-                    handleOnchange(e);
-                  }}
-                  onKeyDown={(e) => handleCommentSubmit(e)}
-                />
-              </div>
+            <div key={i * e.num}>
+              <span key={i * e.num} style={{ color: "red" }}>
+                compsId
+              </span>{" "}
+              : {JSON.stringify(e.compsId)}
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            <br></br>
+            <div key={i * e.num}>
+              <span style={{ color: "red" }}>win : </span> :
+              {JSON.stringify(e.win)}
+            </div>
+            <br></br>
+            <div key={i * e.num}>
+              <span style={{ color: "red" }}>place</span>
+              {JSON.stringify(e.place)}
+            </div>
+            <br></br>
+            <div key={i * e.num}>
+              <span style={{ color: "red" }}>team</span>
+              {JSON.stringify(e.team)}
+            </div>
+            <br></br>
+            <span>==============================</span>
+            <br></br>
+          </>
+        )
+        // <div>
+        //   <p>num: {e.num}</p>
+        //   <p>place: {e.place}</p>
+        //   <p>win: {e.win}</p>
+        //   <p>team: {e.team}</p>
+        // <div/>
+      )}
+      <button onClick={handlOnclick}> Back App</button>
+    </>
   );
 };
 export default Home;
