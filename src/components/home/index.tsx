@@ -61,10 +61,10 @@ const Home = () => {
   const [event, setEvent] = useState<EventToCheckDTO>();
 
   useEffect(() => {
-    // socket.on("events/get", (data: EventToCheckDTO) => {
-    //   console.log(data);
-    //   setEvent(data);
-    // });
+    socket.on("events/get", (data: EventToCheckDTO) => {
+      console.log(data);
+      setEvent(data);
+    });
     // socket.on("events/update", (eventId: number) => {
     //   if (
     //     event?.eventId[0].value == eventId ||
@@ -82,57 +82,44 @@ const Home = () => {
     // });
   });
   useEffect(() => {
-    socket.emit("events/get", [14605698]);
+    socket.emit("events/get", 14736799);
   }, []);
-  const handlOnclick = () => {
-    window.open(
-      "https://dev.wolfden.bet/verify-success?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMzExNiIsInV1aWQiOiJlYjE4ZmMyNC1mZDMxLTQyMDktYjk1MC0yNGVjYjI0MjcyNjMiLCJyb2xlSWQiOiIzIiwiYWN0aXZlIjoiMSIsImlhdCI6MTY3OTMyNzA3OH0.bMH5eTrXcaZSLKgGCzY4cDjmdh5LysaPUOQLfyQxh4U&email=mexer38004%40huvacliq.com"
-    );
-  };
+
   return (
     <>
       <div className="flex justify-center items-center"></div>
       {/* <div>Event: {JSON.stringify(event?.comps)}</div> */}
-      {event?.comps?.map(
-        (e, i) => (
-          <>
-            <div key={i * e.num}>
-              <span style={{ color: "red" }}>Num</span> :{JSON.stringify(e.num)}
-            </div>
-            <div key={i * e.num}>
-              <span key={i * e.num} style={{ color: "red" }}>
-                compsId
-              </span>{" "}
-              : {JSON.stringify(e.compsId)}
-            </div>
-            <br></br>
-            <div key={i * e.num}>
-              <span style={{ color: "red" }}>win : </span> :
-              {JSON.stringify(e.win)}
-            </div>
-            <br></br>
-            <div key={i * e.num}>
-              <span style={{ color: "red" }}>place</span>
-              {JSON.stringify(e.place)}
-            </div>
-            <br></br>
-            <div key={i * e.num}>
-              <span style={{ color: "red" }}>team</span>
-              {JSON.stringify(e.team)}
-            </div>
-            <br></br>
-            <span>==============================</span>
-            <br></br>
-          </>
-        )
-        // <div>
-        //   <p>num: {e.num}</p>
-        //   <p>place: {e.place}</p>
-        //   <p>win: {e.win}</p>
-        //   <p>team: {e.team}</p>
-        // <div/>
-      )}
-      <button onClick={handlOnclick}> Back App</button>
+      {event?.comps?.map((e, i) => (
+        <>
+          <div key={i * e.num}>
+            <span style={{ color: "red" }}>Num</span> :{JSON.stringify(e.num)}
+          </div>
+          <div key={i * e.num}>
+            <span key={i * e.num} style={{ color: "red" }}>
+              compsId
+            </span>{" "}
+            : {JSON.stringify(e.compsId)}
+          </div>
+          <br></br>
+          <div key={i * e.num}>
+            <span style={{ color: "red" }}>win : </span> :
+            {JSON.stringify(e.win)}
+          </div>
+          <br></br>
+          <div key={i * e.num}>
+            <span style={{ color: "red" }}>place</span>
+            {JSON.stringify(e.place)}
+          </div>
+          <br></br>
+          <div key={i * e.num}>
+            <span style={{ color: "red" }}>team</span>
+            {JSON.stringify(e.team)}
+          </div>
+          <br></br>
+          <span>==============================</span>
+          <br></br>
+        </>
+      ))}
     </>
   );
 };
